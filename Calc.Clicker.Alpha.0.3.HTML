@@ -1,0 +1,604 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calc Clicker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kavoon&display=swap" rel="stylesheet">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        background: repeating-linear-gradient(90deg, #333, #333 10px, #666 10px, #666 20px); /* Striped background */
+        color: #fff;
+        padding: 20px;
+        height: 100vh;
+        flex-direction: column;
+        text-align: center;
+      }
+
+      #audioControls {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      }
+
+      #audioControls button {
+        background-color: #939393;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      #audioControls button:hover {
+        background-color: #73a176;
+      }
+
+     /* Style for the Guide button */
+#guideButton {
+  width: 150px; /* Set the width of the button (adjust to your liking) */
+  height: 50px; /* Set the height of the button (adjust to your liking) */
+  background-color: #e0d7c2; /* Same color as the upgrades */
+  color: rgb(70, 70, 70);
+  font-family: 'Kavoon', cursive;
+  font-size: 18px;
+  border: 2px solid #b89e72;
+  border-radius: 25px; /* This gives the button rounded corners */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 20px; /* Adjust this position to where you want it */
+  left: 50%; /* Center it horizontally */
+  transform: translateX(-50%);
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: adds shadow for better visibility */
+  transition: background-color 0.3s ease; /* Adds smooth color transition */
+}
+
+#guideButton:hover {
+  background-color: #73a176; /* Slightly darker green when hovering */
+}
+
+
+
+
+      h1 {
+        font-family: 'Kavoon', cursive;
+        font-size: 48px;
+        text-align: left;
+        margin-bottom: 0;
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+      }
+
+      #version {
+        font-family: 'Kavoon', cursive;
+        font-size: 16px;
+        text-align: left;
+        margin-bottom: 20px;
+        position: absolute;
+        top: 75px;
+        left: 20px;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+      }
+
+      #floatingCurrentContainer {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        pointer-events: none; /* Prevent interaction with the floating text */
+        z-index: 1000; /* Make sure it floats above everything else */
+      }
+      
+      .floatingCurrent {
+        position: absolute;
+        color: #ffcc00; /* Color for the current text */
+        font-size: 20px;
+        font-weight: bold;
+        opacity: 1;
+        transition: transform 1s ease, opacity 1s ease;
+      }
+
+      #calculator {
+        background: #7a7a7a;
+        color: #000;
+        border: 2px solid #131313;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        display: grid;
+        grid-template-rows: 1fr 4fr;
+        width: 300px;
+        margin: 0 20px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      #display {
+        background: #ddd;
+        border: 2px solid #131313;
+        border-radius: 10px;
+        text-align: right;
+        padding: 10px;
+        font-size: 32px;
+        height: 50px;
+        margin-bottom: 10px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      #buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+
+      .button {
+        background: #eee;
+        border: 2px solid #292929;
+        font-size: 20px;
+        text-align: center;
+        line-height: 60px;
+        border-radius: 10px;
+        cursor: pointer;
+        user-select: none;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        transition: all 0.2s ease;
+      }
+
+      .button:active {
+        transform: scale(0.95);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      }
+
+      #equals {
+        background: #d2b967;
+        color: #fff;
+        grid-column: span 2;
+      }
+
+      #upgrades {
+        background: #e0d7c2;
+        color: #333;
+        border: 2px solid #b89e72;
+        width: 400px;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        overflow-y: auto;
+        margin-left: 20px;
+        position: absolute;
+        top: 100px;
+        right: 20px;
+        font-family: 'Kavoon', cursive;
+      }
+
+      #upgrades h2 {
+        font-size: 28px;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .upgrade {
+        margin: 10px 0;
+        padding: 10px;
+        border: 2px solid #333;
+        border-radius: 10px;
+        background: #eee;
+        color: #000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .upgrade button {
+        background-color: #73a176;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .upgrade button:disabled {
+        background: #bbb;
+        cursor: not-allowed;
+      }
+      
+      .notice-board {
+        position: absolute;
+        top: 100px; /* Adjust based on your layout */
+        left: 20px; /* Distance from the left edge */
+        width: 400px; /* Same width as the upgrades */
+        background-color: #e0d7c2; /* Same color as the upgrades */
+        border: 2px solid #b89e72;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+        font-family: 'Kavoon', cursive;
+        color: #333; /* Text color for readability */
+      }
+      
+
+
+
+
+
+
+      #currents {
+        margin-top: 20px;
+        font-size: 24px;
+        text-align: center;
+      }
+
+      #menu {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        z-index: 10;
+        font-family: 'Kavoon', cursive;
+      }
+
+      #menu button {
+        margin-bottom: 10px;
+        font-family: 'Kavoon', cursive;
+      }
+
+      #menuBtn {
+        position: absolute;
+        bottom: 20px;
+        right: 40px;
+        padding: 10px;
+        background-color: #73a176;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-family: 'Kavoon', cursive;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+      }
+
+      #menuBtn:hover {
+        background-color: #73a176;
+      }
+
+      #bookIcon {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        font-size: 40px;
+        cursor: pointer;
+        color: #fff;
+      }
+
+    </style>
+  </head>
+  <body>
+
+    <h1>Calc Clicker</h1>
+    <div id="version">Alpha - Version 0.3</div>
+    <!-- Guide button above the calculator -->
+    <button id="guideButton">GUIDE</button>
+    
+    <!-- Guide window (initially hidden) -->
+    <div id="guideWindow" class="hidden">
+      <div id="guideContent">
+        <span id="closeGuide" class="closeButton">X</span>
+        <textarea id="guideText" rows="10" cols="30">This is your editable guide. You can change this text.</textarea>
+      </div>
+    </div>
+
+    <!-- Floating current display (this will be dynamically generated for each click) -->
+    <div id="floatingCurrentContainer"></div>
+
+
+    
+    
+
+    
+
+    <div id="calculator">
+      <div id="display">0</div>
+      <div id="buttons">
+        <div class="button">7</div>
+        <div class="button">8</div>
+        <div class="button">9</div>
+        <div class="button">*</div>
+        <div class="button">4</div>
+        <div class="button">5</div>
+        <div class="button">6</div>
+        <div class="button">/</div>
+        <div class="button">1</div>
+        <div class="button">2</div>
+        <div class="button">3</div>
+        <div class="button">-</div>
+        <div class="button">C</div>
+        <div class="button">0</div>
+        <div id="equals" class="button">=</div>
+        <div class="button">+</div>
+        <div id="saveProgress" class="button">Save</div>
+        <div id="resetProgress" class="button">Reset</div>
+     </div>
+      </div>
+
+    </div>
+
+    <div id="upgrades">
+      <h2>Upgrades</h2>
+      <div class="upgrade">
+        <span>Click Force (Cost: <span id="clickForceCost">10</span> Digits)</span>
+        <button id="buyClickForce">Buy</button>
+      </div>
+      <div class="upgrade">
+        <span>Extra Fingers (Cost: <span id="extraFingersCost">500</span> Digits)</span>
+        <button id="buyExtraFingers">Buy</button>
+      </div>
+      <div id="currents">Currents: 0</div>
+    </div>
+
+    <div id="menu">
+      <button id="closeMenuBtn">Close Menu</button>
+      <div>
+        <button id="settingsBtn">Toggle Settings</button>
+      </div>
+    </div>
+
+    <button id="menuBtn">Menu</button>
+    <div id="bookIcon"></div>
+
+    <audio id="clickSound1" src="./assets/click1.mp3"></audio>
+    <audio id="clickSound2" src="./assets/click2.mp3"></audio>
+    <audio id="clickSound3" src="./assets/click3.mp3"></audio>
+    <audio id="clickSound4" src="./assets/click4.mp3"></audio>
+
+    function playRandomClickSound()
+
+
+
+    <div class="notice-board">
+      <h3>Notice Board</h3>
+      <ul>
+        <li>----------------------------------</li>
+        <li>Welcome to Calc Clicker!</li>
+        <li>----------------------------------</li>
+        <li>Update 0.3 patch notes</li>
+        <li>----------------------------------</li>
+        <li>- Added Notice Board </li>
+        <li></li>
+        <li>- Changed currency from</li>
+        <li>'Currents' to 'Digits'</li>
+        <li></li>
+        <li>- Added New music feature</li>
+        <li></li>
+        <li>- Changed look of Calculator</li>
+        <li></li>
+        <li>- Changed upgrade prices</li>
+        <li>----------------------------------</li>
+        <li>Coming Soon</li>
+        <li>----------------------------------</li>
+        <li>- Save & Reset (Not yet Finished)</li>
+        <li></li>
+        <li>- Music Controls (Not yet Finished)</li>
+        <li></li>
+        <li>- Guide (Not yet Finished)</li>
+        <li>----------------------------------</li>
+        <li>[suggested to play in 110% page zoom]</li>
+
+
+      </ul>
+    </div>
+
+    <script>
+
+      let isMenuOpen = false;
+
+      // Calculator Logic
+const display = document.getElementById('display');
+const currentsDisplay = document.getElementById('currents');
+const buyExtraFingersBtn = document.getElementById('buyExtraFingers');
+const buyClickForceBtn = document.getElementById('buyClickForce');
+const extraFingersPrice = [500, 2500, 5000, 10000, 50000];
+const clickForcePrice = [10, 100, 500, 1000, 5000, 10000, 250000, 50000, 100000, 250000];
+const clickForceIncrement = 1; // Increase in click force per upgrade (starts at 2, then 3, etc.)
+
+let currents = 0;
+let extraFingers = 0;
+let clickForceLevel = 0;
+let fingerClicks = 1;
+let currentSecond = 0;
+
+let totalClicks = 0; // Variable to track the total clicks
+
+
+function updateCurrents() {
+  currentsDisplay.textContent = `Digits: ${currents}`;
+  display.textContent = currents; // Update the calculator display
+}
+
+function addCurrents(amount) {
+  currents += amount;
+  updateCurrents();
+}
+
+function onEqualsClick() {
+  addCurrents(fingerClicks); // Adds current based on finger clicks per second
+  totalClicks++; // Increase total clicks when "=" is pressed
+  checkExtraFingersUnlock(); // Check if Extra Fingers should be unlocked
+}
+
+
+function buyExtraFingers() {
+  if (currents >= extraFingersPrice[extraFingers]) {
+    currents -= extraFingersPrice[extraFingers];
+    extraFingers++;
+    updateCurrents();
+    document.getElementById('extraFingersCost').textContent = extraFingersPrice[extraFingers]; // Update cost
+  }
+}
+
+function buyClickForce() {
+  if (currents >= clickForcePrice[clickForceLevel]) {
+    currents -= clickForcePrice[clickForceLevel];
+    clickForceLevel++;
+    fingerClicks += clickForceIncrement; // Increase the click force per click
+    updateCurrents();
+    document.getElementById('clickForceCost').textContent = clickForcePrice[clickForceLevel];
+  }
+}
+// Function to show floating current amount
+function showFloatingCurrent(amount) {
+  const floatingContainer = document.getElementById('floatingCurrentContainer');
+
+  // Create the floating text element
+  const floatingText = document.createElement('div');
+  floatingText.classList.add('floatingCurrent');
+  floatingText.textContent = `+${amount} Currents`;
+
+  // Position the text next to the calculator
+  floatingText.style.top = `${Math.random() * 10 + 20}px`; // Randomize vertical position for a slight spread
+  floatingText.style.right = `${Math.random() * 50 + 20}px`; // Randomize horizontal position next to calculator
+
+  // Append the floating text to the container
+  floatingContainer.appendChild(floatingText);
+
+  // Animate the text: move up and fade out
+  setTimeout(() => {
+    floatingText.style.transform = 'translateY(-30px)'; // Move up
+    floatingText.style.opacity = 0; // Fade out
+  }, 10);
+
+  // Remove the floating text after the animation
+  setTimeout(() => {
+    floatingText.remove();
+  }, 1000); // Remove after 1 second (matching the animation duration)
+}
+
+
+
+
+document.getElementById('equals').addEventListener('click', onEqualsClick);
+buyExtraFingersBtn.addEventListener('click', buyExtraFingers);
+buyClickForceBtn.addEventListener('click', buyClickForce);
+
+// Periodically add clicks through extra fingers at 1-second intervals in a 10-second loop
+setInterval(function () {
+  if (currentSecond < extraFingers) {
+    addCurrents(fingerClicks); // Add current based on the number of extra fingers
+  }
+  currentSecond++;
+  if (currentSecond >= 10) {
+    currentSecond = 0; // Reset to start the 10-second loop again
+  }
+}, 1000);
+
+updateCurrents(); // Update currents initially
+
+// --- AUDIO LOGIC ---
+const tracks = [
+  './assets/letithapennlofi.mp3',
+  './assets/letithapennlofi.mp3',
+  './assets/lofi3.mp3'
+];
+
+
+
+let currentTrackIndex = 0;
+let isMuted = false;
+
+const audio = new Audio(tracks[currentTrackIndex]);
+audio.loop = true;
+audio.volume = 0.05; // Adjust volume
+
+// Wait for user interaction before playing
+document.body.addEventListener(
+  'click',
+  () => {
+    audio.play().catch(err => console.error('Playback error:', err));
+  },
+  { once: true }
+);
+
+// Function to toggle mute
+function toggleMute() {
+  isMuted = !isMuted;
+  audio.muted = isMuted;
+  // Update button text based on mute status
+  const toggleButton = document.getElementById('toggleAudio');
+  if (toggleButton) {
+    toggleButton.textContent = isMuted ? '🔇 Unmute' : '🔊 Mute';
+  }
+}
+
+// Function to play the next track
+function nextTrack() {
+  currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+  audio.src = tracks[currentTrackIndex];
+  audio.play(); // Automatically plays the new track
+}
+
+// Function to play the previous track
+function prevTrack() {
+  currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+  audio.src = tracks[currentTrackIndex];
+  audio.play(); // Automatically plays the new track
+}
+
+
+// Event listeners for buttons
+document.getElementById('toggleAudio').addEventListener('click', toggleMute);
+document.getElementById('nextTrack').addEventListener('click', nextTrack);
+document.getElementById('prevTrack').addEventListener('click', prevTrack);
+
+const equalButton = document.getElementById('equalButton'); // Assuming the "=" button has this ID
+
+equalButton.addEventListener('click', () => {
+  const earnedAmount = 1; // Example: The amount earned per click, replace with your actual logic
+  showFloatingCurrent(earnedAmount); // Show the floating text
+});
+
+        
+
+
+
+
+    </script>
+    
+
+
+    <div id="audioControls">
+      <button id="prevTrack">⏮️ Previous</button>
+      <button id="toggleAudio">🔊 Mute</button>
+      <button id="nextTrack">⏭️ Next</button>
+    </div>
+
+  </body>
+  </html>
